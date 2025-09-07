@@ -379,6 +379,10 @@ async def approbation(
 async def login(
     userid: str = Query(..., description="Identifiant PeopleSoft"),
     pwd: str = Query(..., description="Mot de passe PeopleSoft"),
+    parse: bool = Query(
+        False,
+        description="True = cookies seulement; False = réponse HTTP complète.",
+    ),
 ):
     url = "http://ppopsglat02.app.eiffage.loc/psp/PPOPSGL1/EMPLOYEE/ERP/?&cmd=login&languageCd=FRA"
     payload = {
@@ -399,6 +403,8 @@ async def login(
         resp = await client.post(url, data=payload, headers=headers)
 
     cookies = {k: v for k, v in resp.cookies.items()}
+    if parse:
+        return {"status_code": resp.status_code, "cookies": cookies}
     return {
         "status_code": resp.status_code,
         "headers": dict(resp.headers),
